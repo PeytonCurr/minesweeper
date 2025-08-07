@@ -202,20 +202,37 @@ class MinesweeperAI():
         #2)
         self.mark_safe(cell)
         #3)
-        self.knowledge.append(Sentence(cell, count))
-        #4)
-        for sentence in self.knowledge:
-            if len(sentence.known_mines) > 0:
-                for mine in sentence.known_mines:
-                    if mine not in self.mines:
-                        self.mark_mine(mine)
-
-            if len(sentence.known_safes) > 0:
-                for safe in sentence.known_safes:
-                    if safe not in self.safes:
-                        self.mark_safe(safe)
-        #5)
+        # Create Set() to hold all neighboring cells
+        neighborCells = set()
         
+        # Loop Through Neighboring Cells
+        for i in range(cell[0] - 1, cell[0] +2):
+            for j in range(cell [1] - 1, cell[1] + 2):
+                
+                # Add Cells to Neighbor Set that aren't the same as the cell, Not on the game board, and not in Known Safes or Mines
+                if (i,j) != cell and 0 <= i <= self.height and 0 <= j <= self.width and (i,j) not in self.safes:
+                    
+                    # If in known mines, Not adding, so Must Decrease Count in new Sentence
+                    if (i,j) in self.mines:
+                        count -= 1
+                        continue
+                    neighborCells.add((i,j))
+
+            # Add new Sentence in Knowledge
+            self.knowledge.append(Sentence(neighborCells, count))
+
+        #4) mark any additional cells as safe or mines
+        for sentence in self.knowledge:
+            # If there are known mines, mark them
+            for mine in sentence.known_mines():
+                self.mark_mine(mine)
+
+            # If there are known safes, mark them
+            for safe in sentence.known_safes():
+                self.mark_safe(safe)
+                
+        #5)
+
 
     def make_safe_move(self):
         """
