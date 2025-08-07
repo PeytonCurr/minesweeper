@@ -230,8 +230,14 @@ class MinesweeperAI():
             # If there are known safes, mark them
             for safe in sentence.known_safes():
                 self.mark_safe(safe)
-                
+
         #5)
+        for sentence1 in self.knowledge:
+            for sentence2 in self.knowledge:
+                if sentence1.cells.issubset(sentence2.cells):
+                    newSentence = Sentence(sentence2.cells - sentence1.cells, sentence2.count - sentence1.count)
+                    if newSentence.cells:
+                        self.knowledge.append(newSentence)
 
 
     def make_safe_move(self):
