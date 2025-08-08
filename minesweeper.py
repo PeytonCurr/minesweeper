@@ -285,6 +285,3 @@ class MinesweeperAI():
                     return (i,j)
         return None
                 
-
-myAI = MinesweeperAI()
-myAI.add_knowledge((0,0), 1)
