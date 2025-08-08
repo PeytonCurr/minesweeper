@@ -196,13 +196,17 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        
+        print("adding knowledge")
+
         #1)
+        print("#1")
         self.moves_made.add(cell)
         #2)
+        print("#2")
         self.mark_safe(cell)
         #3)
         # Create Set() to hold all neighboring cells
+        print("#3")
         neighborCells = set()
         
         # Loop Through Neighboring Cells
@@ -210,7 +214,7 @@ class MinesweeperAI():
             for j in range(cell [1] - 1, cell[1] + 2):
                 
                 # Add Cells to Neighbor Set that aren't the same as the cell, Not on the game board, and not in Known Safes or Mines
-                if (i,j) != cell and 0 <= i <= self.height and 0 <= j <= self.width and (i,j) not in self.safes:
+                if (i,j) != cell and 0 <= i <= self.height -1 and 0 <= j <= self.width -1 and (i,j) not in self.safes:
                     
                     # If in known mines, Not adding, so Must Decrease Count in new Sentence
                     if (i,j) in self.mines:
@@ -219,24 +223,34 @@ class MinesweeperAI():
                     neighborCells.add((i,j))
 
             # Add new Sentence in Knowledge
-            self.knowledge.append(Sentence(neighborCells, count))
+        print(Sentence(neighborCells, count))
+        self.knowledge.append(Sentence(neighborCells, count))
 
         #4) mark any additional cells as safe or mines
+        print("#4")
+        mines = set()
+        safes = set()
         for sentence in self.knowledge:
             # If there are known mines, mark them
-            for mine in sentence.known_mines():
-                self.mark_mine(mine)
+            for m in sentence.known_mines():
+                mines.add(m)
+        for mine in mines:
+            self.mark_mine(mine)
 
             # If there are known safes, mark them
-            for safe in sentence.known_safes():
-                self.mark_safe(safe)
+            for s in sentence.known_safes():
+                safes.add(s)
+        for safe in safes:
+            self.mark_safe(safe)
 
         #5)
-        for sentence1 in self.knowledge:
-            for sentence2 in self.knowledge:
-                if sentence1.cells.issubset(sentence2.cells):
-                    newSentence = Sentence(sentence2.cells - sentence1.cells, sentence2.count - sentence1.count)
-                    if newSentence.cells:
+        print("#5")
+        for i in range(len(self.knowledge)):
+            for j in range(1, len(self.knowledge)):
+                if self.knowledge[i].cells.issubset(self.knowledge[j].cells):
+                    newSentence = Sentence(self.knowledge[j].cells - self.knowledge[i].cells, self.knowledge[j].count - self.knowledge[i].count)
+                    if newSentence and newSentence not in self.knowledge:
+                        print(newSentence)
                         self.knowledge.append(newSentence)
 
 
@@ -249,12 +263,12 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        
+        print("making safe move")
+
         for safeMove in self.safes:
             if safeMove not in self.moves_made:
                 return safeMove
-            else:
-                return None
+        return None
 
     def make_random_move(self):
         """
@@ -263,10 +277,14 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        
-        for i in range(0, self.height + 1):
-            for j in range(0, self.width + 1):
+        print("Making Random Move")
+
+        for i in range(self.height):
+            for j in range(self.width):
                 if (i,j) not in self.mines and (i,j) not in self.moves_made:
                     return (i,j)
-                else:
-                    return None
+        return None
+                
+
+myAI = MinesweeperAI()
+myAI.add_knowledge((0,0), 1)
